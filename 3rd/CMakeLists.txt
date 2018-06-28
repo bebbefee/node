@@ -1,0 +1,7 @@
+INCLUDE_DIRECTORIES(.)
+
+aux_source_directory(lua/src SRC_FILES)
+LIST(REMOVE_ITEM SRC_FILES "lua/src/lua.c" "lua/src/luac.c")
+
+ADD_LIBRARY(lua SHARED ${SRC_FILES})
+SET(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin_${NODE_BUILD_TYPE})
