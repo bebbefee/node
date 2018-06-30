@@ -9,11 +9,11 @@ local print = print
 g_log_lib.print = function(level, ...)
     local str = "[" .. os.date() .. " " .. level .. "] " .. table.concat({...}, "\t")
     if (level == g_log_lib.level.info) then
-        os.execute([[echo "\033[38m]] .. str .. [[ \033[0m"]])
+        print(str)
     elseif (level == g_log_lib.level.debug) then
-        os.execute([[echo "\033[34m]] .. str .. [[ \033[0m"]])
+        print(str)
     elseif (level == g_log_lib.level.error) then
-        os.execute([[echo "\033[31m]] .. str .. debug.traceback() .. [[ \033[0m"]])
+        print(str .. debug.traceback())
     end
 end
 

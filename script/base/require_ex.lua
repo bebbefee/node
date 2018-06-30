@@ -4,4 +4,4 @@ function require_ex(file)
 end
 
 -- 初始化环境
-package.path = package.path .. ";?.lua"
+package.path = package.path .. ";script/?.lua"

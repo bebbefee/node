@@ -1,3 +1,5 @@
 function OnCmd(cmd)
-    LOG_DEBUG(cmd)
+	if cmd == "stop" then
+		CCloseSrv()
+	end
 end
