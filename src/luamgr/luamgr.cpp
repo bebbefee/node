@@ -44,6 +44,52 @@ void LuaMgr::Update(int frame)
 	}
 }
 
+void LuaMgr::OnAccept(int srv_id, int net_id, unsigned int ip, unsigned short port)
+{
+
+	lua_getglobal(L, "OnAccept"); 
+	lua_pushinteger(L, srv_id); 
+	lua_pushinteger(L, net_id); 
+	lua_pushinteger(L, ip); 
+	lua_pushinteger(L, port); 
+	if (lua_pcall(L, 4, 0, 0))
+	{
+		const char* error_msg = lua_tostring(L, -1); 
+		std::cout << "call OnAccept(srv_id, net_id, ip, port) Error:" << error_msg << std::endl; 
+		lua_pop(L, 1); 
+	}
+}
+
+void LuaMgr::OnRecv(int srv_id, int net_id, const char* data, unsigned int length)
+{
+
+	lua_getglobal(L, "OnRecv"); 
+	lua_pushinteger(L, srv_id); 
+	lua_pushinteger(L, net_id); 
+	lua_pushlstring(L, data, length); 
+	lua_pushinteger(L, length); 
+	if (lua_pcall(L, 4, 0, 0))
+	{
+		const char* error_msg = lua_tostring(L, -1); 
+		std::cout << "call OnRecv(srv_id, net_id, data, length) Error:" << error_msg << std::endl; 
+		lua_pop(L, 1); 
+	}
+}
+
+void LuaMgr::OnClose(int srv_id, int net_id)
+{
+
+	lua_getglobal(L, "OnClose"); 
+	lua_pushinteger(L, srv_id); 
+	lua_pushinteger(L, net_id); 
+	if (lua_pcall(L, 2, 0, 0))
+	{
+		const char* error_msg = lua_tostring(L, -1); 
+		std::cout << "call OnClose(srv_id, net_id) Error:" << error_msg << std::endl; 
+		lua_pop(L, 1); 
+	}
+}
+
 void LuaMgr::OnCmd(const char* cmd)
 {
 	if (!strcmp(cmd, "reload"))

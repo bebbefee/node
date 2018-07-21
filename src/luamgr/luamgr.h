@@ -19,6 +19,12 @@ public:
 	void Run(); 
 
 	void Update(int frame); 
+	
+	void OnAccept(int srv_id, int net_id, unsigned int ip, unsigned short port); 
+
+	void OnRecv(int srv_id, int net_id, const char* data, unsigned int length); 
+
+	void OnClose(int srv_id, int net_id); 
 
 	void OnCmd(const char* cmd); 
 	

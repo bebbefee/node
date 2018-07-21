@@ -2,6 +2,7 @@
 #define _MASTER_H_
 
 #include "luamgr/luamgr.h"
+#include "netmgr/netmgr.h"
 #include "cmd/cmd.h"
 
 class Master
@@ -23,10 +24,12 @@ public:
 	inline void SetIsRun(bool is_run) {this->is_run = is_run; }
 
 	inline LuaMgr& GetLuaMgr() {return lua_mgr; }
+	inline NetMgr& GetNetMgr() {return net_mgr; }
 	inline Cmd& GetCmd() {return cmd; }
 
 private:
 	LuaMgr lua_mgr; 
+	NetMgr net_mgr; 
 	Cmd cmd; 
 	int frame; 
 	bool is_run; 

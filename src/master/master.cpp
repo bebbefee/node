@@ -6,13 +6,15 @@ void Master::Init()
 	frame = 0; 
 	is_run = true; 
 	
-	lua_mgr.Init(); 
+	lua_mgr.Init();
+	net_mgr.Init();  
 	cmd.Init(); 
 }
 
 void Master::Run()
 {
 	lua_mgr.Run(); 
+	net_mgr.Run(); 
 	cmd.Run(); 
 
 	Update(); 
@@ -25,6 +27,7 @@ void Master::Update()
 		++frame; 
 
 		lua_mgr.Update(frame);
+		net_mgr.Update(frame); 
 		cmd.Update(frame); 
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(50));

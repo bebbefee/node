@@ -1,5 +1,5 @@
 Master = Master or {}
 
 Master.Update = function(time)
-	LOG_DEBUG(time)
+	NetSrv.Update(time)
 end
