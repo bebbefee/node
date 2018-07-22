@@ -76,6 +76,8 @@ int NetCore::StartTcpServer(const char* bind_ip_str, unsigned short port, int ba
 
 void NetCore::Send(int net_id, const char* data, unsigned int length)
 {
+
+	((NetHandlerClient*)handler_list[net_id])->Send(data, length); 
 }
 
 void NetCore::Close(int net_id)

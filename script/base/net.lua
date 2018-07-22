@@ -1,5 +1,8 @@
+g_accept = g_accept or {}
+
 function OnAccept(srv_id, net_id, ip, port)
 	LOG_DEBUG("OnAccept:", srv_id, net_id, ip, port)
+	g_accept[net_id] = 1; 
 end
 
 function OnRecv(net_id, data, length)
