@@ -18,15 +18,15 @@ public:
 
 	int StartTcpServer(const char* bind_ip_str, unsigned short port); 
 
-	void Send(int srv_id, int net_id, const char* data, unsigned int length); 
+	void Send(int net_id, const char* data, unsigned int length); 
 
-	void Close(int srv_id, int net_id); 
+	void Close(int net_id); 
 
 	void OnAccept(int srv_id, int net_id, unsigned int ip, unsigned short port); 
 
-	void OnRecv(int srv_id, int net_id, const char* data, unsigned int length); 
+	void OnRecv(int net_id, const char* data, unsigned int length); 
 
-	void OnClose(int srv_id, int net_id); 
+	void OnClose(int net_id); 
 
 private:
 

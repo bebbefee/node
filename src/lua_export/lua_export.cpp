@@ -24,24 +24,22 @@ int CStartTcpServer(lua_State *L)
 
 int CSend(lua_State *L)
 {
-	int srv_id = (int)luaL_checkinteger(L, 1); 
-	int net_id = (int)luaL_checkinteger(L, 2); 
-	const char* data = luaL_checkstring(L, 3); 
-	unsigned int length = (int)luaL_checkinteger(L, 4); 
+	int net_id = (int)luaL_checkinteger(L, 1); 
+	const char* data = luaL_checkstring(L, 2); 
+	unsigned int length = (int)luaL_checkinteger(L, 3); 
 
 	NetMgr& net_mgr = Master::GetInstance().GetNetMgr(); 
-	net_mgr.Send(srv_id, net_id, data, length); 
+	net_mgr.Send(net_id, data, length); 
 
 	return 1; 
 }
 
 int CClose(lua_State *L)
 {
-	int srv_id = (int)luaL_checkinteger(L, 1); 
-	int net_id = (int)luaL_checkinteger(L, 2); 
+	int net_id = (int)luaL_checkinteger(L, 1); 
 
 	NetMgr& net_mgr = Master::GetInstance().GetNetMgr(); 
-	net_mgr.Close(srv_id, net_id); 
+	net_mgr.Close(net_id); 
 
 	return 1; 
 }

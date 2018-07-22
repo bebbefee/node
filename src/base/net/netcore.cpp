@@ -1,6 +1,13 @@
 #include "netcore.h"
 #include "inetcallback.h"
-#include <iostream>
+#include "nethandlersrv.h"
+#include "nethandlerclient.h"
+
+#include <sys/select.h>
+#include "master/master.h"
+
+#include <thread>
+#include <vector>
 
 NetCore::NetCore(INetCallback* callback):callback(callback)
 {
@@ -16,21 +23,99 @@ void NetCore::Init()
 
 void NetCore::Run()
 {
+
+	std::thread t(
+		[this]{
+
+			std::vector<unsigned int> can_read; 
+			std::vector<unsigned int> can_write; 
+			while (Master::GetInstance().GetIsRun())
+			{
+				if (this->handler_list.size() == 0)
+				{
+					std::this_thread::sleep_for(std::chrono::milliseconds(50)); 
+					continue; 
+				}
+
+				this->PollSocket(can_read, can_write); 
+				for (std::vector<unsigned int>::iterator i = can_read.begin(); i != can_read.end(); ++i)
+				{
+					this->handler_list[*i]->OnCanRead(); 
+				}
+				for (std::vector<unsigned int>::iterator i = can_write.begin(); i != can_write.end(); ++i)
+				{
+					this->handler_list[*i]->OnCanWrite(); 
+				}
+
+				can_read.clear(); 
+				can_write.clear(); 
+			}
+		}
+	); 
+
+	t.detach(); 
 }
 
 void NetCore::Update(int frame)
 {
 }
 
-int NetCore::StartTcpServer(const char* bind_ip_str, unsigned short port)
+int NetCore::StartTcpServer(const char* bind_ip_str, unsigned short port, int backlog)
 {
-	return 1; 
+	NetHandlerSrv* hander_srv = new NetHandlerSrv(); 
+	int _socket = hander_srv->Listen(bind_ip_str, port, backlog); 
+	int net_id = -1; 
+	if (_socket != -1)
+	{
+		hander_srv->SetSocketId(_socket); 
+		AddSocket(hander_srv); 
+	}
+
+	return net_id; 
 }
 
-void NetCore::Send(int srv_id, int net_id, const char* data, unsigned int length)
+void NetCore::Send(int net_id, const char* data, unsigned int length)
 {
 }
 
-void NetCore::Close(int srv_id, int net_id)
+void NetCore::Close(int net_id)
 {
+}
+
+void NetCore::AddSocket(INetHandler* hander)
+{
+	int net_id = handler_list.insert(hander); 
+	hander->SetNetCore(this); 
+	hander->SetNetId(net_id); 
+
+	FD_SET(hander->GetSocketId(), &fd_read); 
+	max_fd = hander->GetSocketId(); 
+}
+
+void NetCore::PollSocket(std::vector<unsigned int> &can_read, std::vector<unsigned int> &can_write)
+{
+	struct timeval tv; 
+	tv.tv_sec = 0; 
+	tv.tv_usec = 10000; 
+
+	fd_read_tmp = fd_read; 
+	fd_write_tmp = fd_write; 
+
+	int ret = select(max_fd + 1, &fd_read_tmp, &fd_write_tmp, 0, &tv); 
+	if (ret > 0)
+	{
+		for (int i = 0; i < handler_list.size(); ++i)
+		{
+			int _socket = handler_list[i]->GetSocketId(); 
+			if (FD_ISSET(_socket, &fd_read_tmp))
+			{
+				can_read.push_back(i); 
+			}
+
+			if (FD_ISSET(_socket, &fd_write_tmp))
+			{
+				can_write.push_back(i); 
+			}
+		}
+	}
 }
