@@ -2,6 +2,7 @@
 #include "nethandlerclient.h"
 #include "inetcallback.h"
 #include "netcore.h"
+#include "nettaskaccept.h"
 
 #include <errno.h>
 #include <stdio.h>
@@ -95,6 +96,7 @@ void NetHandlerSrv::OnCanRead()
 		unsigned int ip = ntohl(addr.sin_addr.s_addr); 
 		unsigned short port = ntohs(addr.sin_port); 
 
-		this->net_core->GetCallBack()->OnAccept(this->GetNetId(), hander_client->GetNetId(), ip, port); 
+		NetTaskAcept* task = new NetTaskAcept(this->GetNetId(), hander_client->GetNetId(), ip, port); 
+		this->net_core->PushCoreTask(task); 
 	}
 }

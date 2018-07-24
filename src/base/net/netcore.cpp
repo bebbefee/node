@@ -1,5 +1,6 @@
 #include "netcore.h"
 #include "inetcallback.h"
+#include "inettask.h"
 #include "nethandlersrv.h"
 #include "nethandlerclient.h"
 
@@ -49,6 +50,7 @@ void NetCore::Run()
 
 				can_read.clear(); 
 				can_write.clear(); 
+				this->MakeWorkTask(); 
 			}
 		}
 	); 
@@ -58,6 +60,12 @@ void NetCore::Run()
 
 void NetCore::Update(int frame)
 {
+	while(!work_task.empty())
+	{
+		INetTask* task = work_task.front(); 
+		task->Fire(callback); 
+		work_task.pop_front(); 
+	}
 }
 
 int NetCore::StartTcpServer(const char* bind_ip_str, unsigned short port, int backlog)
@@ -121,3 +129,14 @@ void NetCore::PollSocket(std::vector<unsigned int> &can_read, std::vector<unsign
 		}
 	}
 }
+
+void NetCore::MakeWorkTask()
+{
+	while(!core_task.empty())
+	{
+		INetTask* task = core_task.front(); 
+		work_task.push_back(task); 
+		core_task.pop(); 
+	}
+}
+

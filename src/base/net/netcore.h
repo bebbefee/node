@@ -2,7 +2,9 @@
 #define _NETCORE_H_
 
 #include "base/idvector.h"
+#include "base/thread_queue.h"
 #include <vector>
+#include <queue>
 
 #include <netinet/in.h>
 #include <errno.h>
@@ -12,6 +14,7 @@
 
 class INetCallback; 
 class INetHandler; 
+class INetTask; 
 
 class NetCore
 {
@@ -36,10 +39,16 @@ public:
 	void PollSocket(std::vector<unsigned int> &can_read, std::vector<unsigned int> &can_write); 
 
 	INetCallback* GetCallBack(){return callback; }
+
+	void PushCoreTask(INetTask* task){ core_task.push(task); }
+	void MakeWorkTask(); 
 	
 private:
 	INetCallback* callback; 
 	IdVector<INetHandler*> handler_list; 
+
+	std::queue<INetTask*> core_task; 
+	ThreadQueue<INetTask*> work_task; 
 
 	fd_set fd_read; 
 	fd_set fd_write; 

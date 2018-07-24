@@ -15,7 +15,7 @@ public:
 		{
 			index = recovery_list.front(); 
 			recovery_list.pop(); 
-			obj_list[index] = value; 
+			new (&obj_list[index])T(value); 
 		}
 		else
 		{
@@ -28,8 +28,9 @@ public:
 		return index; 
 	}
 
-	void remove(unsigned int index)
+	void erase(unsigned int index)
 	{
+		obj_list[index].~T(); 
 		recovery_list.push(index); 
 		--_size; 
 	}
