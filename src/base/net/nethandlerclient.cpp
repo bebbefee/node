@@ -20,8 +20,8 @@ void NetHandlerClient::OnCanRead()
 
 		if (ret <= 0)
 		{
-			net_core->RemoveSocket(this); 
 			OnClose(); 
+			net_core->RemoveSocket(this); 
 			return; 
 		}
 	}

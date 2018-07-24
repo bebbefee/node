@@ -34,7 +34,7 @@ int setnonblocking(int _socket)
 int NetHandlerSrv::Listen(const char* bind_ip_str, unsigned short port, int backlog)
 {
 	int on = 1; 
-	int _socket = socket(AF_INET, SOCK_STREAM, 0); 
+	int _socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP); 
 	if (setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) == -1)
 	{
 		printf("setsockopt failed %s\n", strerror(errno)); 
