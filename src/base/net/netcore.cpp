@@ -99,7 +99,14 @@ void NetCore::AddSocket(INetHandler* hander)
 	hander->SetNetId(net_id); 
 
 	FD_SET(hander->GetSocketId(), &fd_read); 
+	FD_SET(hander->GetSocketId(), &fd_write); 
 	max_fd = hander->GetSocketId(); 
+}
+
+void NetCore::RemoveSocket(INetHandler* hander)
+{
+	FD_CLR(hander->GetSocketId(), &fd_read); 
+	FD_CLR(hander->GetSocketId(), &fd_write); 
 }
 
 void NetCore::PollSocket(std::vector<unsigned int> &can_read, std::vector<unsigned int> &can_write)
@@ -110,7 +117,6 @@ void NetCore::PollSocket(std::vector<unsigned int> &can_read, std::vector<unsign
 
 	fd_read_tmp = fd_read; 
 	fd_write_tmp = fd_write; 
-
 	int ret = select(max_fd + 1, &fd_read_tmp, &fd_write_tmp, 0, &tv); 
 	if (ret > 0)
 	{

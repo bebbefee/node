@@ -11,7 +11,6 @@ public:
 	int Listen(const char* bind_ip_str, unsigned short port, int backlog); 
 
 	void OnCanRead(); 
-	
 }; 
 
 #endif /* _NETHANDLERSRV_H_ */

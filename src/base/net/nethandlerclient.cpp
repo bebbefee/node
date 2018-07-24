@@ -1,7 +1,8 @@
 #include "nethandlerclient.h"
 #include <arpa/inet.h>
 #include <errno.h>
-#include "stdio.h"
+#include "netcore.h"
+#include "nettaskclose.h"
 
 void NetHandlerClient::OnCanRead()
 {
@@ -19,20 +20,22 @@ void NetHandlerClient::OnCanRead()
 
 		if (ret <= 0)
 		{
-
+			net_core->RemoveSocket(this); 
+			OnClose(); 
+			return; 
 		}
-
-		
 	}
 }
 
 void NetHandlerClient::OnCanWrite()
 {
-	printf("OnCanWrite\n");
 }
 
 void NetHandlerClient::OnClose()
 {
+
+	NetTaskClose* task = new NetTaskClose(this->GetNetId()); 
+	this->net_core->PushCoreTask(task); 
 }
 
 void NetHandlerClient::Send(const char* data, unsigned int length)

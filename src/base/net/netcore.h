@@ -34,7 +34,8 @@ public:
 	
 	void Close(int net_id); 
 
-	void AddSocket(INetHandler*); 
+	void AddSocket(INetHandler* hander); 
+	void RemoveSocket(INetHandler* hander); 
 
 	void PollSocket(std::vector<unsigned int> &can_read, std::vector<unsigned int> &can_write); 
 
