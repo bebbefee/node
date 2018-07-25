@@ -101,6 +101,7 @@ void NetCore::AddSocket(INetHandler* hander)
 
 	int _socket = hander->GetSocketId(); 
 	FD_SET(_socket, &fd_read); 
+	FD_SET(_socket, &fd_write); 
 
 	max_fd = max_fd > _socket ? max_fd : _socket; 
 }

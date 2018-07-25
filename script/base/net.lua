@@ -11,4 +11,5 @@ end
 
 function OnClose(net_id)
 	LOG_DEBUG("OnClose:", net_id)
+	g_accept[net_id] = nil; 
 end
