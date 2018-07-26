@@ -50,6 +50,7 @@ void NetCore::Run()
 
 				can_read.clear(); 
 				can_write.clear(); 
+				CleanDirtySocket(); 
 				this->MakeWorkTask(); 
 			}
 		}
@@ -60,6 +61,8 @@ void NetCore::Run()
 
 void NetCore::Update(int frame)
 {
+	std::lock_guard<std::mutex> g1(m1); 
+	std::lock_guard<std::mutex> g2(m2); 
 	INetTask* task; 
 	while(work_task.pop(task))
 	{
@@ -76,7 +79,7 @@ int NetCore::StartTcpServer(const char* bind_ip_str, unsigned short port, int ba
 	if (_socket != -1)
 	{
 		hander_srv->SetSocketId(_socket); 
-		AddSocket(hander_srv); 
+		AddNetHandler(hander_srv); 
 		net_id = hander_srv->GetNetId(); 
 	}
 
@@ -85,33 +88,78 @@ int NetCore::StartTcpServer(const char* bind_ip_str, unsigned short port, int ba
 
 void NetCore::Send(int net_id, const char* data, unsigned int length)
 {
-
-	((NetHandlerClient*)handler_list[net_id])->Send(data, length); 
+	std::lock_guard<std::mutex> g(handler_list_mutex); 
+	auto hander_iter = handler_list.find(net_id); 
+	if (hander_iter != handler_list.end() && (*hander_iter)->GetHandlerType() == NetHandlerType::NH_CLIENT)
+	{
+		((NetHandlerClient*)(*hander_iter))->Send(data, length); 
+	}
 }
 
 void NetCore::Close(int net_id)
 {
+	PushDirtySocket(net_id); 
 }
 
-void NetCore::AddSocket(INetHandler* hander)
+void NetCore::PushDirtySocket(int net_id)
 {
-	int net_id = handler_list.insert(hander); 
+	std::lock_guard<std::mutex> g(dirty_net_id_mutex); 
+	dirty_net_id.push_back(net_id); 
+}
+
+void NetCore::CleanDirtySocket()
+{
+	std::vector<int> temp; 
+	{
+		std::lock_guard<std::mutex> g(dirty_net_id_mutex); 
+		dirty_net_id.swap(temp); 
+	}
+
+	for (std::vector<int>::iterator iter = temp.begin(); iter != temp.end(); ++iter)
+	{
+		auto hander_iter = handler_list.find(*iter); 
+		if (hander_iter == handler_list.end())
+		{
+			continue; 
+		}
+
+		int _socket = (*hander_iter)->GetSocketId(); 
+		(*hander_iter)->OnClose(); 
+		RemoveNetHandler(*hander_iter); 
+		RemoveSocket(_socket); 
+	}
+}
+
+void NetCore::AddNetHandler(INetHandler* hander)
+{
+	int net_id = 0; 
+	{
+		std::lock_guard<std::mutex> g(handler_list_mutex); 
+		net_id = handler_list.insert(hander); 
+	}
 	hander->SetNetCore(this); 
 	hander->SetNetId(net_id); 
 
-	int _socket = hander->GetSocketId(); 
+	AddSocket(hander->GetSocketId()); 
+}
+
+void NetCore::RemoveNetHandler(INetHandler* hander)
+{
+	std::lock_guard<std::mutex> g(handler_list_mutex); 
+	handler_list.erase(hander->GetNetId()); 
+	delete hander; 
+}
+
+void NetCore::AddSocket(int _socket)
+{
 	FD_SET(_socket, &fd_read); 
 	FD_SET(_socket, &fd_write); 
 
 	max_fd = max_fd > _socket ? max_fd : _socket; 
 }
 
-void NetCore::RemoveSocket(INetHandler* hander)
+void NetCore::RemoveSocket(int _socket)
 {
-	int _socket = hander->GetSocketId(); 
-	handler_list.erase(hander->GetNetId()); 
-	delete hander; 
-
 	FD_CLR(_socket, &fd_read); 
 	FD_CLR(_socket, &fd_write); 
 
@@ -161,4 +209,3 @@ void NetCore::MakeWorkTask()
 		core_task.pop(); 
 	}
 }
-

@@ -90,7 +90,7 @@ void NetHandlerSrv::OnCanRead()
 
 		NetHandlerClient* hander_client = new NetHandlerClient(); 
 		hander_client->SetSocketId(_socket); 
-		this->net_core->AddSocket(hander_client); 
+		this->net_core->AddNetHandler(hander_client); 
 
 		getpeername(_socket, (struct sockaddr *)&addr, &len); 
 		unsigned int ip = ntohl(addr.sin_addr.s_addr); 

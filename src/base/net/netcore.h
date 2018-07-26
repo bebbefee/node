@@ -34,8 +34,14 @@ public:
 	
 	void Close(int net_id); 
 
-	void AddSocket(INetHandler* hander); 
-	void RemoveSocket(INetHandler* hander); 
+	void PushDirtySocket(int net_id); 
+	void CleanDirtySocket(); 
+
+	void AddNetHandler(INetHandler* hander); 
+	void RemoveNetHandler(INetHandler* hander); 
+
+	void AddSocket(int _socket); 
+	void RemoveSocket(int _socket); 
 
 	void PollSocket(std::vector<unsigned int> &can_read, std::vector<unsigned int> &can_write); 
 
@@ -47,6 +53,7 @@ public:
 private:
 	INetCallback* callback; 
 	IdVector<INetHandler*> handler_list; 
+	std::mutex handler_list_mutex; 
 
 	std::queue<INetTask*> core_task; 
 	ThreadQueue<INetTask*> work_task; 
@@ -57,6 +64,12 @@ private:
 	fd_set fd_read_tmp; 
 	fd_set fd_write_tmp; 
 	int max_fd; 
+
+	std::vector<int> dirty_net_id; 
+	std::mutex dirty_net_id_mutex; 
+
+	std::mutex m1; 
+	std::mutex m2; 
 }; 
 
 #endif /* _NETCORE_H_ */

@@ -39,8 +39,7 @@ void NetHandlerClient::OnCanRead()
 
 		if (ret <= 0)
 		{
-			OnClose(); 
-			net_core->RemoveSocket(this); 
+			net_core->PushDirtySocket(net_id); 
 			return; 
 		}
 
@@ -62,8 +61,7 @@ void NetHandlerClient::OnCanRead()
 
 				if (read_msg_block.length < 0 || read_msg_block.length > 4096)
 				{
-					OnClose(); 
-					net_core->RemoveSocket(this); 
+					net_core->PushDirtySocket(net_id); 
 					return; 
 				}
 
@@ -138,8 +136,7 @@ void NetHandlerClient::OnCanWrite()
 
 			if (ret <= 0)
 			{
-				OnClose(); 
-				net_core->RemoveSocket(this); 
+				net_core->PushDirtySocket(net_id); 
 				return; 
 			}
 			curr_write_length += ret; 
@@ -181,6 +178,8 @@ bool NetHandlerClient::Send(const char* data, unsigned int length)
 	memcpy(point + sizeof(int32_t), data, length); 
 
 	wait_write_length = total_length; 
+
+	return true; 
 }
 
 

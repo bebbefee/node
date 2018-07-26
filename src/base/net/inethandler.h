@@ -27,6 +27,8 @@ public:
 	void SetSocketId(int _socket){this->_socket = _socket; }
 	int GetSocketId(){return _socket; }
 
+	NetHandlerType GetHandlerType(){return handler_type; }
+
 protected:
 	NetHandlerType handler_type; 
 	NetCore* net_core; 
