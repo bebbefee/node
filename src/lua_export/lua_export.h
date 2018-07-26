@@ -7,6 +7,7 @@ extern "C" {
 
 int CCloseSrv(lua_State *L); 
 int CStartTcpServer(lua_State *L); 
+int CStartTcpClient(lua_State *L); 
 int CSend(lua_State *L); 
 int CClose(lua_State *L); 
 

@@ -25,7 +25,7 @@ void NetCore::Init()
 void NetCore::Run()
 {
 
-	std::thread t(
+	std::thread t1(
 		[this]{
 
 			std::vector<unsigned int> can_read; 
@@ -56,13 +56,33 @@ void NetCore::Run()
 		}
 	); 
 
-	t.detach(); 
+	t1.detach(); 
+
+
+	std::thread t2(
+		[this]{
+
+			while (Master::GetInstance().GetIsRun())
+			{
+				ConnectStruct* cs; 
+				if (!connect_struct.pop(cs))
+				{
+					std::this_thread::sleep_for(std::chrono::milliseconds(1000)); 
+					continue; 
+				}
+				else
+				{
+					delete cs; 
+				}
+			}
+		}
+	); 
+
+	t2.detach(); 
 }
 
 void NetCore::Update(int frame)
 {
-	std::lock_guard<std::mutex> g1(m1); 
-	std::lock_guard<std::mutex> g2(m2); 
 	INetTask* task; 
 	while(work_task.pop(task))
 	{
@@ -84,6 +104,17 @@ int NetCore::StartTcpServer(const char* bind_ip_str, unsigned short port, int ba
 	}
 
 	return net_id; 
+}
+
+int NetCore::StartTcpClient(const char* remote_ip_str, unsigned short remote_port, unsigned int time_out)
+{
+	unsigned int remote_ip = inet_addr(remote_ip_str);
+	ConnectStruct* cs = new ConnectStruct(); 
+	cs->remote_ip = remote_ip; 
+	cs->remote_port = remote_port; 
+	cs->time_out = time_out; 
+
+	connect_struct.push_back(cs); 
 }
 
 void NetCore::Send(int net_id, const char* data, unsigned int length)

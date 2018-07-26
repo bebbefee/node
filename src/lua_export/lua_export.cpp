@@ -22,6 +22,19 @@ int CStartTcpServer(lua_State *L)
 	return 1; 
 }
 
+int CStartTcpClient(lua_State *L)
+{
+	const char* remote_ip_str = luaL_checkstring(L, 1); 
+	unsigned short remote_port = (unsigned short)luaL_checkinteger(L, 2); 
+
+	NetMgr& net_mgr = Master::GetInstance().GetNetMgr(); 
+	int ret = net_mgr.StartTcpClient(remote_ip_str, remote_port); 
+
+	lua_pushnumber(L, ret); 
+
+	return 1; 
+}
+
 int CSend(lua_State *L)
 {
 	int net_id = (int)luaL_checkinteger(L, 1); 
@@ -48,6 +61,7 @@ void ExportCfunction(lua_State *L)
 {
 	lua_register(L, "CCloseSrv", CCloseSrv); 
 	lua_register(L, "CStartTcpServer", CStartTcpServer); 
+	lua_register(L, "CStartTcpClient", CStartTcpClient); 
 	lua_register(L, "CSend", CSend); 
 	lua_register(L, "CClose", CClose); 
 }

@@ -16,6 +16,13 @@ class INetCallback;
 class INetHandler; 
 class INetTask; 
 
+struct ConnectStruct
+{
+	unsigned int remote_ip; 
+	unsigned short remote_port; 
+	unsigned int time_out; 
+}; 
+
 class NetCore
 {
 public:
@@ -29,6 +36,8 @@ public:
 	void Update(int frame); 
 
 	int StartTcpServer(const char* bind_ip_str, unsigned short port, int backlog=1024); 
+
+	int StartTcpClient(const char* remote_ip_str, unsigned short remote_port, unsigned int time_out=3000); 
 
 	void Send(int net_id, const char* data, unsigned int length); 
 	
@@ -68,8 +77,7 @@ private:
 	std::vector<int> dirty_net_id; 
 	std::mutex dirty_net_id_mutex; 
 
-	std::mutex m1; 
-	std::mutex m2; 
+	ThreadQueue<ConnectStruct*> connect_struct; 
 }; 
 
 #endif /* _NETCORE_H_ */

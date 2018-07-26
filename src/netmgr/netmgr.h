@@ -17,7 +17,8 @@ public:
 	void Update(int frame); 
 
 	int StartTcpServer(const char* bind_ip_str, unsigned short port); 
-
+	int StartTcpClient(const char* remote_ip_str, unsigned short remote_port); 
+	
 	void Send(int net_id, const char* data, unsigned int length); 
 
 	void Close(int net_id); 

@@ -27,6 +27,11 @@ int NetMgr::StartTcpServer(const char* bind_ip_str, unsigned short port)
 	return net_core.StartTcpServer(bind_ip_str, port); 
 }
 
+int NetMgr::StartTcpClient(const char* remote_ip_str, unsigned short remote_port)
+{
+	return net_core.StartTcpClient(remote_ip_str, remote_port); 
+}
+
 void NetMgr::Send(int net_id, const char* data, unsigned int length)
 {
 	net_core.Send(net_id, data, length); 

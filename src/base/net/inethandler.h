@@ -5,6 +5,7 @@ enum NetHandlerType
 {
 	NH_SRV,
 	NH_CLIENT,
+	NH_CONNECT,
 }; 
 
 class NetCore; 
