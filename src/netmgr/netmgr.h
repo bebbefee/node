@@ -20,14 +20,14 @@ public:
 	int StartTcpClient(const char* remote_ip_str, unsigned short remote_port); 
 	
 	void Send(int net_id, const char* data, unsigned int length); 
-
 	void Close(int net_id); 
 
 	void OnAccept(int srv_id, int net_id, unsigned int ip, unsigned short port); 
-
 	void OnRecv(int net_id, const char* data, unsigned int length); 
-
 	void OnClose(int net_id); 
+
+	void OnConnected(int connect_id, int net_id); 
+	void OnConnecteFaild(int connect_id); 
 
 private:
 

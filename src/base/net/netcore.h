@@ -21,6 +21,7 @@ struct ConnectStruct
 	unsigned int remote_ip; 
 	unsigned short remote_port; 
 	unsigned int time_out; 
+	int connect_id; 
 }; 
 
 class NetCore
@@ -58,6 +59,10 @@ public:
 
 	void PushCoreTask(INetTask* task){ core_task.push(task); }
 	void MakeWorkTask(); 
+
+private:
+
+	int Connect(unsigned int remote_ip, unsigned short remote_port, unsigned int time_out=3000); 
 	
 private:
 	INetCallback* callback; 
@@ -77,6 +82,7 @@ private:
 	std::vector<int> dirty_net_id; 
 	std::mutex dirty_net_id_mutex; 
 
+	int connect_id; 
 	ThreadQueue<ConnectStruct*> connect_struct; 
 }; 
 

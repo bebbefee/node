@@ -26,6 +26,10 @@ public:
 
 	void OnClose(int net_id); 
 
+	void OnConnected(int connect_id, int net_id); 
+
+	void OnConnecteFaild(int connect_id); 
+
 	void OnCmd(const char* cmd); 
 	
 private:

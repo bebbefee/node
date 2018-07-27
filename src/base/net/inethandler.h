@@ -1,6 +1,33 @@
 #ifndef _INETHANDLER_H_
 #define _INETHANDLER_H_
 
+#include <errno.h>
+#include <stdio.h>
+#include <string.h>
+#include <arpa/inet.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <fcntl.h>
+
+inline int setnonblocking(int _socket)
+{
+	int opts = fcntl(_socket, F_GETFL); 
+	if (opts < 0)
+	{
+		printf("fcntl failed %s\n", strerror(errno)); 
+		return -1; 
+	}
+
+	opts = opts | O_NONBLOCK; 
+	if (fcntl(_socket, F_SETFL, opts) < 0)
+	{
+		printf("fcntl failed %s\n", strerror(errno)); 
+		return -1; 
+	}
+
+	return 0; 
+}
+
 enum NetHandlerType
 {
 	NH_SRV,

@@ -13,3 +13,11 @@ function OnClose(net_id)
 	LOG_DEBUG("OnClose:", net_id)
 	g_accept[net_id] = nil; 
 end
+
+function OnConnected(connect_id, net_id)
+	LOG_DEBUG("OnConnected:", connect_id, net_id)
+	g_accept[net_id] = 1; 
+end
+function OnConnecteFaild(connect_id)
+	LOG_DEBUG("OnConnecteFaild:", connect_id)
+end

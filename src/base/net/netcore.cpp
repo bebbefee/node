@@ -3,6 +3,8 @@
 #include "inettask.h"
 #include "nethandlersrv.h"
 #include "nethandlerclient.h"
+#include "nettaskconnected.h"
+#include "nettaskconnectefaild.h"
 
 #include <sys/select.h>
 #include "master/master.h"
@@ -10,7 +12,7 @@
 #include <thread>
 #include <vector>
 
-NetCore::NetCore(INetCallback* callback):callback(callback)
+NetCore::NetCore(INetCallback* callback):callback(callback),connect_id(0)
 {
 }
 
@@ -72,6 +74,17 @@ void NetCore::Run()
 				}
 				else
 				{
+					INetTask* task = nullptr; 
+					int net_id = Connect(cs->remote_ip, cs->remote_port, cs->time_out); 
+					if (net_id != -1)
+					{
+						task = new NetTaskConnected(cs->connect_id, net_id); 
+					}
+					else
+					{
+						task = new NetTaskConnecteFaild(cs->connect_id); 
+					}
+					PushCoreTask(task); 
 					delete cs; 
 				}
 			}
@@ -113,8 +126,11 @@ int NetCore::StartTcpClient(const char* remote_ip_str, unsigned short remote_por
 	cs->remote_ip = remote_ip; 
 	cs->remote_port = remote_port; 
 	cs->time_out = time_out; 
+	cs->connect_id = connect_id; 
 
 	connect_struct.push_back(cs); 
+
+	return connect_id++; 
 }
 
 void NetCore::Send(int net_id, const char* data, unsigned int length)
@@ -239,4 +255,38 @@ void NetCore::MakeWorkTask()
 		work_task.push_back(task); 
 		core_task.pop(); 
 	}
+}
+
+int NetCore::Connect(unsigned int remote_ip, unsigned short remote_port, unsigned int time_out)
+{
+	int _socket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP); 
+	if (-1 == _socket)
+	{
+		return -1; 
+	}
+
+	struct sockaddr_in addr; 
+	addr.sin_family = AF_INET; 
+	addr.sin_port = htons(remote_port); 
+	addr.sin_addr.s_addr = remote_ip; 
+
+	socklen_t addr_len = sizeof(addr);
+	int ret = connect(_socket, (struct sockaddr*)&addr, addr_len);
+	if (-1 == ret)
+	{
+		close(_socket); 
+		return -1; 
+	}
+
+	if (-1 == setnonblocking(_socket))
+	{
+		close(_socket); 
+		return -1; 
+	}
+
+	NetHandlerClient* hander_client = new NetHandlerClient(); 
+	hander_client->SetSocketId(_socket); 
+	AddNetHandler(hander_client); 
+
+	return hander_client->GetNetId(); 
 }

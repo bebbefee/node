@@ -62,7 +62,6 @@ void LuaMgr::OnAccept(int srv_id, int net_id, unsigned int ip, unsigned short po
 
 void LuaMgr::OnRecv(int net_id, const char* data, unsigned int length)
 {
-
 	lua_getglobal(L, "OnRecv"); 
 	lua_pushinteger(L, net_id); 
 	lua_pushlstring(L, data, length); 
@@ -77,13 +76,37 @@ void LuaMgr::OnRecv(int net_id, const char* data, unsigned int length)
 
 void LuaMgr::OnClose(int net_id)
 {
-
 	lua_getglobal(L, "OnClose"); 
 	lua_pushinteger(L, net_id); 
 	if (lua_pcall(L, 1, 0, 0))
 	{
 		const char* error_msg = lua_tostring(L, -1); 
 		std::cout << "call OnClose(net_id) Error:" << error_msg << std::endl; 
+		lua_pop(L, 1); 
+	}
+}
+
+void LuaMgr::OnConnected(int connect_id, int net_id)
+{
+	lua_getglobal(L, "OnConnected"); 
+	lua_pushinteger(L, connect_id); 
+	lua_pushinteger(L, net_id); 
+	if (lua_pcall(L, 2, 0, 0))
+	{
+		const char* error_msg = lua_tostring(L, -1); 
+		std::cout << "call OnConnected(connect_id, net_id) Error:" << error_msg << std::endl; 
+		lua_pop(L, 1); 
+	}
+}
+
+void LuaMgr::OnConnecteFaild(int connect_id)
+{
+	lua_getglobal(L, "OnConnecteFaild"); 
+	lua_pushinteger(L, connect_id); 
+	if (lua_pcall(L, 1, 0, 0))
+	{
+		const char* error_msg = lua_tostring(L, -1); 
+		std::cout << "call OnConnecteFaild(connect_id) Error:" << error_msg << std::endl; 
 		lua_pop(L, 1); 
 	}
 }

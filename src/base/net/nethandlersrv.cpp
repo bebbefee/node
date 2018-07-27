@@ -4,33 +4,6 @@
 #include "netcore.h"
 #include "nettaskaccept.h"
 
-#include <errno.h>
-#include <stdio.h>
-#include <string.h>
-#include <arpa/inet.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <fcntl.h>
-
-int setnonblocking(int _socket)
-{
-	int opts = fcntl(_socket, F_GETFL); 
-	if (opts < 0)
-	{
-		printf("fcntl failed %s\n", strerror(errno)); 
-		return -1; 
-	}
-
-	opts = opts | O_NONBLOCK; 
-	if (fcntl(_socket, F_SETFL, opts) < 0)
-	{
-		printf("fcntl failed %s\n", strerror(errno)); 
-		return -1; 
-	}
-
-	return 0; 
-}
-
 int NetHandlerSrv::Listen(const char* bind_ip_str, unsigned short port, int backlog)
 {
 	int on = 1; 

@@ -59,3 +59,15 @@ void NetMgr::OnClose(int net_id)
 	LuaMgr& lua_mgr = Master::GetInstance().GetLuaMgr(); 
 	lua_mgr.OnClose(net_id); 
 }
+
+void NetMgr::OnConnected(int connect_id, int net_id)
+{
+	LuaMgr& lua_mgr = Master::GetInstance().GetLuaMgr(); 
+	lua_mgr.OnConnected(connect_id, net_id); 
+}
+
+void NetMgr::OnConnecteFaild(int connect_id)
+{
+	LuaMgr& lua_mgr = Master::GetInstance().GetLuaMgr(); 
+	lua_mgr.OnConnecteFaild(connect_id); 
+}
